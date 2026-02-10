@@ -1,6 +1,9 @@
 # Mac OS
 .DS_Store
 
+# Git helper script (contains token)
+git_push_helper.sh
+
 # R
 .Rhistory
 .RData
