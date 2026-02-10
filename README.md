@@ -58,7 +58,9 @@ See comments in individual script files for detailed methodology and results.
 
 ## 📧 Contact
 
-[Your contact information]
+Saewon Chung
+Email: saewonch@usc.edu
+GitHub: [@saewonchung](https://github.com/saewonchung)
 
 ---
 *Last updated: 2026-02-09*
