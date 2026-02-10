@@ -315,18 +315,18 @@ var_labels_table <- c(
 )
 
 corr_flat_ordered <- corr_flat %>%
-  # Variable1, Variable2 모두에서 제외
+  # Filter for variables in table
   filter(
     Variable1 %in% vars_for_table,
     Variable2 %in% vars_for_table
   ) %>%
-  # 순서 고정
+  # Fix variable order
   mutate(
     Variable1 = factor(Variable1, levels = vars_for_table),
     Variable2 = factor(Variable2, levels = vars_for_table)
   ) %>%
   arrange(Variable1, Variable2) %>%
-  # 라벨 적용
+  # Apply labels
   mutate(
     Variable1_label = ifelse(
       is.na(var_labels_table[as.character(Variable1)]),
@@ -413,14 +413,14 @@ corrplot( # need to refine due to name change in labels
 dev.off()
 
 # Correlation Plot for Notion reporting ----
-# 1) 사용할 변수 순서 (기존 그대로)
+# 1) Variable order (same as table)
 vars_plot <- vars_for_table
 
-# 2) correlation / p-value matrix (같은 변수, 같은 순서)
+# 2) Correlation / p-value matrix (same variables, same order)
 corr_mat <- corr_results$r[vars_plot, vars_plot]
 p_mat    <- corr_results$P[vars_plot, vars_plot]
 
-# 3) long format으로 변환
+# 3) Convert to long format
 heatmap_df <- expand.grid(
   Variable1 = vars_plot,
   Variable2 = vars_plot
@@ -431,7 +431,7 @@ heatmap_df <- expand.grid(
     p = p_mat[cbind(match(Variable1, vars_plot),
                     match(Variable2, vars_plot))]
   ) %>%
-  filter(Variable1 != Variable2) %>%   # 대각선 제거
+  filter(Variable1 != Variable2) %>%   # Remove diagonal
   mutate(
     sig = case_when(
       p < 0.001 ~ "***",
