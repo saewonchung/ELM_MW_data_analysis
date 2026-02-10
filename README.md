@@ -71,11 +71,11 @@ NIRx_raw_data → ELM_filtered_data → elm_preprocessing.ipynb → ELM_preproce
                                                             compute-dyad-isc-ELM.R
                                                                       ↓
                                                                 ISC_ROI_level_ELM.csv
-                                                                      ↓
+                                                                      
 Qualtrics surveys → Qualtrics_data_cleaning.R → Qualtrics_all_merged.csv
-                                                                      ↓
-SART_data → ELM_SART_Probe.R → SART_results.csv                      ↓
-                                              ↓                       ↓
+                                                                      
+SART_data → ELM_SART_Probe.R → SART_results.csv                      
+                                              ↓                       
                                 ELM_final_analysis_with_ISC_refined.R
                                               ↓
                                     📊 Final Results & Figures
