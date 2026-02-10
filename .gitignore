@@ -15,14 +15,43 @@ __pycache__/
 *$py.class
 .ipynb_checkpoints/
 
+# Temporary and old files (keep locally, not on GitHub)
+combined_temp.csv
+failed_datasets_report.md
+ELM_final_analysis.R
+ELM_final_analysis_with_ISC.R
+
 # Data files (large files)
 *.pptx
 *.png
 *.jpg
 *.jpeg
 
-# Raw data directories (너무 큰 경우 제외)
-# NIRx_raw_data/
+# Data directories - exclude files but keep folder structure
+NIRx_raw_data/*
+!NIRx_raw_data/.gitkeep
+
+ELM_filtered_data/*
+!ELM_filtered_data/.gitkeep
+
+ELM_preprocessed/*
+!ELM_preprocessed/.gitkeep
+
+# Qualtrics_data - exclude all except specific files
+Qualtrics_data/*
+!Qualtrics_data/.gitkeep
+!Qualtrics_data/Qualtrics_data_cleaning.R
+
+# SART_data - exclude all except specific files
+SART_data/*
+!SART_data/.gitkeep
+!SART_data/ELM_SART_Probe.R
+
+# Claude directory
+.claude/
+
+# Archive folder (keep locally, not on GitHub)
+archive/
 
 # Temporary files
 *.tmp
