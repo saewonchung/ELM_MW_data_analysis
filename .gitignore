@@ -20,6 +20,7 @@ combined_temp.csv
 failed_datasets_report.md
 ELM_final_analysis.R
 ELM_final_analysis_with_ISC.R
+Table_ISC_Significant_Results.html
 
 # Data files (large files)
 *.pptx
