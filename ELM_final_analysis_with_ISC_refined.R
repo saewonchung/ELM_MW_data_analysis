@@ -2,9 +2,10 @@
 #
 # Sample size notes:
 #   - Total Qualtrics: 113 subjects
-#   - ISC data available: 93 subjects (fNIRS quality exclusions)
-#   - Per ROI/signal/stimulus: ~80-86 subjects (channel-specific NA values)
-#   - With valid Mindwandering response: ~79-85 subjects (2 subjects missing)
+#   - ISC data available: 107 subjects (after fNIRS quality control)
+#   - Excluded from analysis: subjects 38, 39, 40 (data quality issues)
+#   - Final sample varies by analysis depending on available data for each
+#     ROI/signal/stimulus combination
 
 library(tidyverse)
 library(broom)
@@ -15,8 +16,7 @@ library(lmerTest)
 
 # 0. Load data ----
 isc_df <- read_csv("/Users/saewonchung/Desktop/ELM_MW_data_analysis/ISC_ROI_level_ELM.csv")
-# qualtrics_df <- read_csv("/Users/saewonchung/Desktop/ELM_MW_data_analysis/Qualtrics_data/Qualtrics_raw_data_cleaned.csv")
-qualtrics_df <- read_csv("/Users/saewonchung/Desktop/ELM_MW_data_analysis/Qualtrics_data/Qualtrics_all_merged.csv") # added survey 2
+qualtrics_df <- read_csv("/Users/saewonchung/Desktop/ELM_MW_data_analysis/Qualtrics_data/Qualtrics_all_merged.csv")
 sart_df <- read_csv("/Users/saewonchung/Desktop/ELM_MW_data_analysis/SART_data/SART_results.csv")
 
 # 1. Prepare behavioral data ----
@@ -250,75 +250,7 @@ p_heatmap <- correlation_results_fdr %>%
 
 print(p_heatmap)
 
-# 8. Scatterplots for significant findings ----
-cat("\nGenerating scatterplots for significant findings...\n")
-
-# vmPFC × MW_state_SART × Zima × HbO (if significant)
-if (any(sig_results$ROI == "vmPFC" &
-        sig_results$Behavioral_Variable == "MW_state_SART" &
-        sig_results$Stimulus == "Zima" &
-        sig_results$Signal_Type == "HbO")) {
-
-  filtered_df <- merged_df %>%
-    filter(channel == "vmPFC", signal_type == "HbO", stimulus == "Zima")
-
-  # Get correlation stats
-  cor_result <- cor.test(filtered_df$MW_state_SART, filtered_df$mean_isc_z, method = "spearman")
-
-  p_scatter_mw <- ggplot(filtered_df, aes(x = MW_state_SART, y = mean_isc_z)) +
-    geom_point(color = "#1f78b4", size = 2.5, alpha = 0.7) +
-    geom_smooth(method = "lm", se = TRUE, fill = "#a6cee3", color = "#1f78b4", size = 1.2) +
-    stat_cor(method = "spearman",
-             aes(label = paste(..rr.label.., ..p.label.., sep = ", ")),
-             size = 5, color = "black") +
-    labs(
-      title = "vmPFC ISC vs. Mind Wandering (Zima, HbO)",
-      x = "Mind Wandering State (SART)",
-      y = "Mean ISC (z-score)"
-    ) +
-    theme_minimal(base_size = 16) +
-    theme(
-      plot.title = element_text(face = "bold", hjust = 0.5),
-      axis.title = element_text(face = "bold"),
-      panel.grid.major = element_line(color = "grey90"),
-      panel.grid.minor = element_blank()
-    )
-
-  print(p_scatter_mw)
-}
-
-# vmPFC × Loneliness × Zima × HbO (if significant)
-if (any(sig_results$ROI == "vmPFC" &
-        sig_results$Behavioral_Variable == "Loneliness" &
-        sig_results$Stimulus == "Zima" &
-        sig_results$Signal_Type == "HbO")) {
-
-  filtered_df <- merged_df %>%
-    filter(channel == "vmPFC", signal_type == "HbO", stimulus == "Zima")
-
-  p_scatter_lonely <- ggplot(filtered_df, aes(x = Loneliness, y = mean_isc_z)) +
-    geom_point(color = "#e41a1c", size = 2.5, alpha = 0.7) +
-    geom_smooth(method = "lm", se = TRUE, fill = "#fb9a99", color = "#e41a1c", size = 1.2) +
-    stat_cor(method = "spearman",
-             aes(label = paste(..rr.label.., ..p.label.., sep = ", ")),
-             size = 5, color = "black") +
-    labs(
-      title = "vmPFC ISC vs. Loneliness (Zima, HbO)",
-      x = "Loneliness Score",
-      y = "Mean ISC (z-score)"
-    ) +
-    theme_minimal(base_size = 16) +
-    theme(
-      plot.title = element_text(face = "bold", hjust = 0.5),
-      axis.title = element_text(face = "bold"),
-      panel.grid.major = element_line(color = "grey90"),
-      panel.grid.minor = element_blank()
-    )
-
-  print(p_scatter_lonely)
-}
-
-# 9. Mixed-effects models ----
+# 8. Mixed-effects models ----
 cat("\nFitting mixed-effects models...\n")
 
 # Prepare data for LMM (Zima + HbO)
