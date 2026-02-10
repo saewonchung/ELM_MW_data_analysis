@@ -1,0 +1,12 @@
+Variable_Label,N,Mean,SD,Median,Min,Max
+Autism (AQ-10),113,3.63,1.62,3,0,8
+ADHD (ASRS),113,31.62,10.07,32,6,58
+SART Accuracy (%),106,89.89,10.4,91.99,11.11,99.59
+Anxiety (GAD-7),113,6.04,4.58,5,0,21
+Loneliness (UCLA),113,13.81,10.79,11,0,47
+SART MW Ratio,104,0.31,0.24,0.29,0,1
+Mind Wandering (State),113,2.53,0.93,2,1,5
+Mind Wandering (Trait),113,19.5,4.11,20,7,29
+Depression (PHQ-9),113,5.56,4.37,4,0,20
+Social Anxiety (SIAS),113,23.35,13.45,20,2,67
+Well-being (WHO-5),113,13.59,4.33,14,2,23

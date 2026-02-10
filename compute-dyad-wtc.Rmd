@@ -1,0 +1,133 @@
+---
+title: "Compute ROI-level WTC from Haemo data"
+---
+
+Setup and define parameters
+```{r}
+library(tidyverse)
+
+base_dir <- "/Users/saewonchung/Desktop/fNIRS pilot analysis/Data_preprocessed"
+preproc_csv_filepattern <- "sub-\\d+_task-Video_acq-\\d+_dur-508_desc-preproc_haemo\\.csv$"
+
+# map ROI to list of channels
+roi_map <- list(
+    vmPFC = c("S1_D1", "S1_D9", "S1_D8", "S2_D9", "S10_D9"),
+    dmPFC = c("S9_D9", "S9_D3", "S9_D11", "S9_D4", "S5_D3", "S5_D4", "S13_D4", "S13_D11"),
+    ldlPFC = c("S5_D5", "S4_D5", "S4_D3", "S2_D3", "S2_D2", "S3_D2"),
+    rdlPFC = c("S13_D12", "S12_D12", "S12_D11", "S10_11", "S10_D10", "S11_D10"),
+    lTPJ = c("S8_D7", "S8_D6", "S7_D7", "S7_D6"),
+    rTPJ = c("S15_D14", "S15_D13", "S16_D14", "S16_D13")
+)
+```
+
+Read the preprocessed HbO/HbR timeseries
+```{r}
+file_paths <- list.files(path = base_dir,
+                         pattern = preproc_csv_filepattern,
+                         recursive = TRUE,
+                         full.names = TRUE)
+
+subject_ids <- str_extract(file_paths, "(?<=sub-)\\d+")
+ordering <- order(as.numeric(subject_ids))
+file_paths <- file_paths[ordering]
+subject_ids <- subject_ids[ordering]
+
+subject_data <- lapply(file_paths, function(f) {
+  read_csv(f, show_col_types = FALSE) %>% select(-time)
+})
+
+names(subject_data) <- subject_ids
+```
+
+Trim to shortest length
+```{r}
+lengths_check <- sapply(subject_data, nrow) # length check
+print(lengths_check)
+min_len <- min(sapply(subject_data, nrow)) # if length different,
+subject_data <- lapply(subject_data, function(df) df[1:min_len, ]) # trim to min length
+```
+
+Z score within participant within channel
+```{r}
+subject_data <- lapply(subject_data, function(df) {
+  df %>% mutate(across(everything(), scale))
+}) 
+```
+
+Average by ROI
+```{r}
+average_by_roi <- function(subject_data, signal_type = c("hbo", "hbr")) {
+  signal_type <- match.arg(signal_type)
+  roi_map_hbx <- lapply(roi_map, function(chs) paste(chs, signal_type))
+  
+  lapply(subject_data, function(df) {
+    df_filtered <- df %>% select(matches(signal_type))
+    
+    roi_data <- map_dfc(roi_map_hbx, function(chs) {
+      valid_chs <- intersect(chs, colnames(df_filtered))
+      if (length(valid_chs) > 0) {
+        rowMeans(df_filtered[, valid_chs, drop = FALSE], na.rm = TRUE)
+      } else {
+        rep(NA, nrow(df_filtered))
+      }
+    })
+    
+    colnames(roi_data) <- names(roi_map_hbx)
+    as_tibble(roi_data)
+  })
+}
+
+subject_data_hbo_roi <- average_by_roi(subject_data, "hbo")
+subject_data_hbr_roi <- average_by_roi(subject_data, "hbr")
+```
+
+Compute Dyad-Level WTC per Channel:
+```{r}
+channel_names_hbo <- unique(unlist(lapply(subject_data_hbo_roi, colnames)))
+channel_names_hbr <- unique(unlist(lapply(subject_data_hbr_roi, colnames)))
+
+compute_dyad_wtc <- function(subject_data_roi, channel_names) {
+  dyad_wtc_list <- list()
+  
+  for (ch_name in channel_names) {
+    ts_all <- lapply(subject_data_roi, function(x) x[[ch_name]])
+    available <- which(sapply(ts_all, function(x) is.numeric(x) && length(x) == length(ts_all[[1]])))
+    
+    if (length(available) < 2) next
+    
+    for (i in 1:(length(available) - 1)) {
+      for (j in (i + 1):length(available)) {
+        sub1 <- names(subject_data_roi)[available[i]]
+        sub2 <- names(subject_data_roi)[available[j]]
+
+        # TODO: testme
+        sub1_ts_matrix <- cbind(time = seq_along(ts_all[[sub1]]), value = ts_all[[sub1]])
+        sub2_ts_matrix <- cbind(time = seq_along(ts_all[[sub2]]), value = ts_all[[sub2]])
+
+        # TODO: implement use = "complete.obs"
+        wtc.sub1sub2 <- biwavelet::wtc(sub1_ts_matrix, sub2_ts_matrix, mother="morlet")
+
+        # TODO: figure out more about how to do WTC! e.g. see https://www.researchgate.net/publication/354451390_How_to_Calculate_and_Validate_Inter-brain_Synchronization_in_a_fNIRS_Hyperscanning_Study?__cf_chl_tk=HQb3OtZNUrJFUP.JSkrl2URrFqEekbcHxNzWE3pcIeU-1749022730-1.0.1.1-Zgh.nbf852vBn7EhfqLyRFn9nkx5rVaHANZMAg4yBA0
+        
+        dyad_wtc_list[[length(dyad_wtc_list) + 1]] <- tibble(
+          channel = ch_name,
+          sub1 = sub1,
+          sub2 = sub2,
+          wtc = coherence
+        )
+      }
+    }
+  }
+}
+
+dyad_wtc_hbo <- compute_dyad_wtc(subject_data_hbo_roi, channel_names_hbo)
+dyad_wtc_hbr <- compute_dyad_wtc(subject_data_hbr_roi, channel_names_hbr)
+```
+
+Save results to csv
+```{r}
+roi_wtc <- bind_rows(roi_wtc_hbo, roi_wtc_hbr) %>% 
+  mutate(subject = as.numeric(subject))
+
+write_csv(roi_wtc, "/Users/saewonchung/Desktop/fNIRS pilot analysis/WTC_ROI_level.csv")
+```

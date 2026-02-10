@@ -1,0 +1,34 @@
+# Mac OS
+.DS_Store
+
+# R
+.Rhistory
+.RData
+.Rproj.user
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+
+# Data files (large files)
+*.pptx
+*.png
+*.jpg
+*.jpeg
+
+# Raw data directories (너무 큰 경우 제외)
+# NIRx_raw_data/
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE
+.vscode/
+.idea/
+
+# Output files (필요시 주석 해제)
+# *.csv
+# *.html
