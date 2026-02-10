@@ -283,3 +283,59 @@ print(summary(m2))
 
 cat("\n=== Model 3: MW_state + Loneliness + MW_trait ===\n")
 print(summary(m3))
+
+# ---- Video-specific mindwandering models ----
+cat("\n\n=== Video-Specific Mindwandering Models ===\n")
+
+# Prepare data for Zima with video-specific MW
+df_zima_video_mw <- merged_df %>%
+  filter(stimulus == "Zima", signal_type == "HbO") %>%
+  filter(is.finite(mean_isc_z), is.finite(Mindwandering_Zima)) %>%
+  mutate(
+    subject = factor(subject),
+    channel = factor(channel)
+  )
+
+# Model 4: Zima-specific mindwandering
+# Note: Using only subject random effect to avoid singular fit issues
+m4 <- lmer(mean_isc_z ~ Mindwandering_Zima + (1 | subject),
+           data = df_zima_video_mw)
+
+cat("\n=== Model 4: Mindwandering_Zima (Zima video) ===\n")
+print(summary(m4))
+cat("Sample size:", nrow(df_zima_video_mw), "observations,",
+    n_distinct(df_zima_video_mw$subject), "subjects\n")
+
+# Prepare data for Splitscreen with video-specific MW
+df_split_video_mw <- merged_df %>%
+  filter(stimulus == "Splitscreen", signal_type == "HbO") %>%
+  filter(is.finite(mean_isc_z), is.finite(Mindwandering_Splitscreen)) %>%
+  mutate(
+    subject = factor(subject),
+    channel = factor(channel)
+  )
+
+# Model 5: Splitscreen-specific mindwandering
+m5 <- lmer(mean_isc_z ~ Mindwandering_Splitscreen + (1 | subject),
+           data = df_split_video_mw)
+
+cat("\n=== Model 5: Mindwandering_Splitscreen (Splitscreen video) ===\n")
+print(summary(m5))
+cat("Sample size:", nrow(df_split_video_mw), "observations,",
+    n_distinct(df_split_video_mw$subject), "subjects\n")
+
+# Model 6: Zima MW + Loneliness + trait MW
+m6 <- lmer(mean_isc_z ~ Mindwandering_Zima + Loneliness + MW_trait_total +
+             (1 | subject),
+           data = df_zima_video_mw)
+
+cat("\n=== Model 6: Mindwandering_Zima + Loneliness + MW_trait ===\n")
+print(summary(m6))
+
+# Model 7: Splitscreen MW + Loneliness + trait MW
+m7 <- lmer(mean_isc_z ~ Mindwandering_Splitscreen + Loneliness +
+             MW_trait_total + (1 | subject),
+           data = df_split_video_mw)
+
+cat("\n=== Model 7: Mindwandering_Splitscreen + Loneliness + MW_trait ===\n")
+print(summary(m7))
