@@ -1,14 +1,14 @@
 # ============================================================================
 # Qualtrics Data Cleaning and Merging Pipeline
 # ============================================================================
-# This script combines Survey 1 (trait data) and Survey 2 (video-specific data)
+# This script combines Survey 4 (individual measures) and Survey 2 (video-specific data)
 #
 # Input files:
-#   - Qualtrics_raw_data_full_250105.xlsx (Survey 1 - trait questionnaires)
+#   - Qualtrics_raw_data_full_250105.xlsx (Survey 4 - individual measures)
 #   - Qualtrics_Survey_2_raw_data_250109.csv (Survey 2 - video responses)
 #
 # Output files:
-#   - Qualtrics_raw_data_cleaned.csv (cleaned Survey 1 data)
+#   - Qualtrics_raw_data_cleaned.csv (cleaned Survey 4 data)
 #   - Qualtrics_all_merged.csv (final merged data)
 # ============================================================================
 
@@ -25,11 +25,11 @@ library(broom)
 base_dir <- "/Users/saewonchung/Desktop/ELM_MW_data_analysis"
 
 cat("============================================================\n")
-cat("PART 1: Survey 1 (Trait Data) Processing\n")
+cat("PART 1: Survey 4 (Individual Measures) Processing\n")
 cat("============================================================\n\n")
 
 # ============================================================================
-# PART 1: SURVEY 1 PROCESSING (Trait Data)
+# PART 1: SURVEY 4 PROCESSING (Individual Measures)
 # ============================================================================
 
 # 0. Download data from Qualtrics and roughly clean data from excel
