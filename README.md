@@ -1,4 +1,4 @@
-# ELM: Eyetracking Loneliness and Mind-wandering
+# Eyetracking Loneliness and Mind-wandering (ELM)
 
 fNIRS-based mind wandering study: data preprocessing and analysis pipeline
 
